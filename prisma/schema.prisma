@@ -67,6 +67,7 @@ model RubricQuestion {
   criteria       String
   maxMarks       Int
   test           Test   @relation(fields: [testId], references: [id], onDelete: Cascade)
+  evaluations    EvaluationQuestion[]
 
   @@unique([testId, position])
   @@map("rubric_questions")
@@ -91,10 +92,69 @@ model Submission {
   teacher          User             @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   test             Test             @relation(fields: [testId], references: [id], onDelete: Cascade)
   student          Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  evaluation       Evaluation?
 
   @@index([teacherId, createdAt])
   @@index([testId, studentId])
   @@map("submissions")
+}
+
+model Evaluation {
+  id                  String               @id @default(cuid())
+  submissionId        String               @unique
+  status              EvaluationStatus     @default(DRAFT)
+  totalSuggestedMarks Int                  @default(0)
+  totalFinalMarks     Int                  @default(0)
+  overallFeedback     String?
+  finalizedAt         DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  submission          Submission           @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  questions           EvaluationQuestion[]
+  commentThreads      CommentThread[]
+
+  @@map("evaluations")
+}
+
+model EvaluationQuestion {
+  id                    String         @id @default(cuid())
+  evaluationId          String
+  rubricQuestionId      String
+  earnedMarksSuggested  Int
+  earnedMarksFinal      Int
+  rationale             String
+  answerContentJson     Json
+  evaluation            Evaluation     @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  rubricQuestion        RubricQuestion @relation(fields: [rubricQuestionId], references: [id], onDelete: Restrict)
+
+  @@unique([evaluationId, rubricQuestionId])
+  @@map("evaluation_questions")
+}
+
+model CommentThread {
+  id           String        @id @default(cuid())
+  evaluationId String
+  questionId   String?
+  anchorJson   Json
+  status       CommentStatus @default(OPEN)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  evaluation   Evaluation    @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  question     EvaluationQuestion? @relation(fields: [questionId], references: [id], onDelete: SetNull)
+  comments     Comment[]
+
+  @@map("comment_threads")
+}
+
+model Comment {
+  id        String     @id @default(cuid())
+  threadId  String
+  body      String
+  authorType CommentAuthorType
+  createdAt DateTime   @default(now())
+  thread    CommentThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
 }
 
 enum ProcessingStatus {
@@ -105,3 +165,7 @@ enum ProcessingStatus {
   READY
   FAILED
 }
+
+enum EvaluationStatus { DRAFT FINALIZED }
+enum CommentStatus { OPEN RESOLVED }
+enum CommentAuthorType { AI TEACHER }
