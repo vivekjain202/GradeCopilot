@@ -37,11 +37,12 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ### 2. Students, tests, and rubrics
 
-- [ ] Create database models and migrations for students, tests, and rubric questions.
-- [ ] Build validated server-side CRUD operations scoped to the signed-in teacher.
-- [ ] Build student directory and create/edit student form.
-- [ ] Build test creation and rubric builder with question order, criteria, and maximum marks.
-- [ ] Add tests for validation, ownership, and total-mark constraints.
+- [x] Create database models and migrations for students, tests, and rubric questions.
+- [x] Build validated server-side CRUD operations scoped to the signed-in teacher.
+- [x] Build student directory and create/edit student form.
+- [x] Build test creation and rubric builder with question order, criteria, and maximum marks.
+- [x] Add tests for validation, ownership, and total-mark constraints.
+- [ ] Apply the migration to Supabase and manually verify teacher-scoped student and test CRUD.
 
 **Done when:** a teacher can create a student and a rubric-based test, then view and edit them later.
 
@@ -114,4 +115,4 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ## Execution order
 
-We will implement and verify one numbered task at a time. The immediate next item is **Task 0: Project foundation**.
+We implement and verify one numbered task at a time. The next implementation task is **Task 3: Secure submission upload**.

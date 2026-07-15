@@ -14,6 +14,61 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  students     Student[]
+  tests        Test[]
 
   @@map("users")
+}
+
+model Student {
+  id            String   @id @default(cuid())
+  teacherId     String
+  name          String
+  className     String
+  rollNumber    String?
+  guardianEmail String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  teacher       User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, name])
+  @@unique([teacherId, rollNumber])
+  @@map("students")
+}
+
+model Test {
+  id              String           @id @default(cuid())
+  teacherId       String
+  title           String
+  subject         String
+  className       String
+  testDate        DateTime
+  totalMarks      Int
+  status          TestStatus       @default(DRAFT)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  teacher         User             @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  rubricQuestions RubricQuestion[]
+
+  @@index([teacherId, testDate])
+  @@map("tests")
+}
+
+model RubricQuestion {
+  id             String @id @default(cuid())
+  testId         String
+  position       Int
+  label          String
+  prompt         String
+  expectedAnswer String
+  criteria       String
+  maxMarks       Int
+  test           Test   @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, position])
+  @@map("rubric_questions")
+}
+
+enum TestStatus {
+  DRAFT
 }

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { readSession } from "@/lib/auth/session";
+import { AuthorizationError } from "@/lib/ownership";
 import { findTeacherById } from "@/lib/teachers";
 
 export async function getAuthenticatedTeacher() {
@@ -14,6 +15,16 @@ export async function getAuthenticatedTeacher() {
 
   if (!teacher || teacher.email !== session.email) {
     return null;
+  }
+
+  return teacher;
+}
+
+export async function requireAuthenticatedTeacher() {
+  const teacher = await getAuthenticatedTeacher();
+
+  if (!teacher) {
+    throw new AuthorizationError();
   }
 
   return teacher;
