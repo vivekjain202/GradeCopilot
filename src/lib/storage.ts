@@ -15,7 +15,7 @@ export async function createSubmissionUploadUrl(fileKey: string) {
     .from(submissionBucket)
     .createSignedUploadUrl(fileKey);
 
-  if (error) throw new Error("Could not prepare a secure upload URL.");
+  if (error || !data) throw new Error("Could not prepare a secure upload URL.");
   return data;
 }
 
@@ -24,6 +24,6 @@ export async function createSubmissionDownloadUrl(fileKey: string) {
     .from(submissionBucket)
     .createSignedUrl(fileKey, 60);
 
-  if (error) throw new Error("Could not prepare a secure download URL.");
+  if (error || !data) throw new Error("Could not prepare a secure download URL.");
   return data.signedUrl;
 }

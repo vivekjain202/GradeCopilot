@@ -1,4 +1,9 @@
-export type RubricDraftInput = { id: string; label: string; maxMarks: number; criteria: string };
+export type RubricDraftInput = {
+  id: string;
+  label: string;
+  maxMarks: number;
+  criteria: string;
+};
 
 export function createDeterministicDraft(questions: RubricDraftInput[]) {
   return questions.map((question) => ({

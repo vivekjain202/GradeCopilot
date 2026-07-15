@@ -18,19 +18,38 @@ export async function updateEvaluationMarks(
   earnedMarksFinal: number,
 ) {
   const teacher = await requireAuthenticatedTeacher();
-  if (!Number.isInteger(earnedMarksFinal) || earnedMarksFinal < 0) throw new Error("Invalid mark.");
-  if (!(await ownedEvaluation(teacher.id, evaluationId))) throw new Error("Evaluation not found.");
-  const question = await db.evaluationQuestion.findFirst({ where: { id: questionId, evaluationId }, include: { rubricQuestion: true } });
-  if (!question || earnedMarksFinal > question.rubricQuestion.maxMarks) throw new Error("Mark exceeds rubric maximum.");
-  await db.evaluationQuestion.update({ where: { id: question.id }, data: { earnedMarksFinal } });
-  const total = await db.evaluationQuestion.aggregate({ where: { evaluationId }, _sum: { earnedMarksFinal: true } });
-  await db.evaluation.update({ where: { id: evaluationId }, data: { totalFinalMarks: total._sum.earnedMarksFinal ?? 0 } });
+  if (!Number.isInteger(earnedMarksFinal) || earnedMarksFinal < 0)
+    throw new Error("Invalid mark.");
+  if (!(await ownedEvaluation(teacher.id, evaluationId)))
+    throw new Error("Evaluation not found.");
+  const question = await db.evaluationQuestion.findFirst({
+    where: { id: questionId, evaluationId },
+    include: { rubricQuestion: true },
+  });
+  if (!question || earnedMarksFinal > question.rubricQuestion.maxMarks)
+    throw new Error("Mark exceeds rubric maximum.");
+  await db.evaluationQuestion.update({
+    where: { id: question.id },
+    data: { earnedMarksFinal },
+  });
+  const total = await db.evaluationQuestion.aggregate({
+    where: { evaluationId },
+    _sum: { earnedMarksFinal: true },
+  });
+  await db.evaluation.update({
+    where: { id: evaluationId },
+    data: { totalFinalMarks: total._sum.earnedMarksFinal ?? 0 },
+  });
   revalidatePath(`/evaluations/${evaluationId}`);
 }
 
 export async function resolveCommentThread(evaluationId: string, threadId: string) {
   const teacher = await requireAuthenticatedTeacher();
-  if (!(await ownedEvaluation(teacher.id, evaluationId))) throw new Error("Evaluation not found.");
-  await db.commentThread.updateMany({ where: { id: threadId, evaluationId }, data: { status: "RESOLVED" } });
+  if (!(await ownedEvaluation(teacher.id, evaluationId)))
+    throw new Error("Evaluation not found.");
+  await db.commentThread.updateMany({
+    where: { id: threadId, evaluationId },
+    data: { status: "RESOLVED" },
+  });
   revalidatePath(`/evaluations/${evaluationId}`);
 }
