@@ -18,6 +18,8 @@ jobs:
       DIRECT_URL: postgresql://postgres:postgres@localhost:5432/gradecopilot
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       SESSION_SECRET: ci-session-secret-that-is-at-least-32-characters
+      SUPABASE_URL: https://example.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: ci-service-role-key
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -47,6 +49,8 @@ jobs:
       DIRECT_URL: postgresql://postgres:postgres@localhost:5432/gradecopilot
       NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
       SESSION_SECRET: ci-session-secret-that-is-at-least-32-characters
+      SUPABASE_URL: https://example.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: ci-service-role-key
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

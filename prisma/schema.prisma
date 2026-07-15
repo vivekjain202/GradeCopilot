@@ -87,6 +87,7 @@ model Submission {
   mimeType         String
   fileSizeBytes    Int
   processingStatus ProcessingStatus @default(UPLOADED)
+  processingError  String?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   teacher          User             @relation(fields: [teacherId], references: [id], onDelete: Cascade)
@@ -126,6 +127,7 @@ model EvaluationQuestion {
   answerContentJson     Json
   evaluation            Evaluation     @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
   rubricQuestion        RubricQuestion @relation(fields: [rubricQuestionId], references: [id], onDelete: Restrict)
+  commentThreads        CommentThread[]
 
   @@unique([evaluationId, rubricQuestionId])
   @@map("evaluation_questions")
@@ -166,6 +168,17 @@ enum ProcessingStatus {
   FAILED
 }
 
-enum EvaluationStatus { DRAFT FINALIZED }
-enum CommentStatus { OPEN RESOLVED }
-enum CommentAuthorType { AI TEACHER }
+enum EvaluationStatus {
+  DRAFT
+  FINALIZED
+}
+
+enum CommentStatus {
+  OPEN
+  RESOLVED
+}
+
+enum CommentAuthorType {
+  AI
+  TEACHER
+}

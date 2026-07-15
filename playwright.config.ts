@@ -27,6 +27,9 @@ export default defineConfig({
       SESSION_SECRET:
         process.env.SESSION_SECRET ??
         "test-session-secret-that-is-at-least-32-characters",
+      SUPABASE_URL: process.env.SUPABASE_URL ?? "https://example.supabase.co",
+      SUPABASE_SERVICE_ROLE_KEY:
+        process.env.SUPABASE_SERVICE_ROLE_KEY ?? "test-service-role-key",
     },
     url: baseURL,
     reuseExistingServer: !process.env.CI,

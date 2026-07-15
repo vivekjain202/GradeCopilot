@@ -31,7 +31,7 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 - [x] Protect application routes and redirect unauthenticated users.
 - [x] Create an accessible dashboard shell with navigation, user menu, and empty states.
 - [x] Define the `User` schema and ownership helpers.
-- [ ] Configure the Supabase project, apply the `users` migration, and manually verify sign-up, sign-in, sign-out, and a persistent session.
+- [x] Configure the Supabase project, apply the `users` migration, and manually verify sign-up, sign-in, sign-out, and a persistent session.
 
 **Done when:** an authenticated teacher can access the dashboard while unauthenticated visitors cannot.
 
@@ -49,10 +49,10 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 ### 3. Secure submission upload
 
 - [ ] Configure a private Supabase Storage bucket for test copies.
-- [ ] Build PDF/JPG/PNG upload with file type and size validation.
-- [ ] Persist a submission record and processing state.
-- [ ] Use signed URLs only for teacher access; add authorization tests.
-- [ ] Build submission progress and retry/error UI states.
+- [x] Build PDF/JPG/PNG upload with file type and size validation.
+- [x] Persist a submission record and processing state.
+- [x] Use signed URLs only for teacher access; add authorization tests.
+- [x] Build submission progress and retry/error UI states.
 
 **Done when:** a teacher can securely upload one student test copy and see its processing status.
 

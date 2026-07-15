@@ -46,6 +46,12 @@ GradeCopilot helps teachers review AI-assisted grading drafts, provide anchored 
 
 Never commit `.env.local`, database URLs, session secrets, Supabase service-role keys, or AI API keys. Configure production variables in Vercel, and use a separate Supabase project for production. Teacher passwords are salted and hashed before storage; the application only stores a signed, HTTP-only session cookie in the browser.
 
+## Supabase Storage setup
+
+Create a bucket named `test-copies` in the Supabase Storage dashboard before using uploads. It must remain **private**. Set its maximum file size to 20 MiB and allow only `application/pdf`, `image/jpeg`, and `image/png` when those bucket settings are available.
+
+The browser receives a short-lived, server-created upload URL and uploads directly to that private bucket; it never receives the service-role key. Viewing a submission goes through the authenticated application, which verifies the teacher owns the submission before issuing a 60-second download URL. Do not add a public read policy for this bucket.
+
 ## Deployment
 
 Vercel deploys the production branch (`master`). Before connecting the repository, set the required environment variables in Vercel and configure a Supabase production database. Apply migrations with `npm run db:deploy` as part of the deployment workflow.
