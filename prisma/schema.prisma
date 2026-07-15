@@ -16,6 +16,7 @@ model User {
   updatedAt    DateTime @updatedAt
   students     Student[]
   tests        Test[]
+  submissions  Submission[]
 
   @@map("users")
 }
@@ -30,6 +31,7 @@ model Student {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   teacher       User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  submissions   Submission[]
 
   @@index([teacherId, name])
   @@unique([teacherId, rollNumber])
@@ -49,6 +51,7 @@ model Test {
   updatedAt       DateTime         @updatedAt
   teacher         User             @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   rubricQuestions RubricQuestion[]
+  submissions    Submission[]
 
   @@index([teacherId, testDate])
   @@map("tests")
@@ -71,4 +74,34 @@ model RubricQuestion {
 
 enum TestStatus {
   DRAFT
+}
+
+model Submission {
+  id               String           @id @default(cuid())
+  teacherId        String
+  testId           String
+  studentId        String
+  fileKey          String           @unique
+  fileName         String
+  mimeType         String
+  fileSizeBytes    Int
+  processingStatus ProcessingStatus @default(UPLOADED)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  teacher          User             @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  test             Test             @relation(fields: [testId], references: [id], onDelete: Cascade)
+  student          Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, createdAt])
+  @@index([testId, studentId])
+  @@map("submissions")
+}
+
+enum ProcessingStatus {
+  UPLOADED
+  QUEUED
+  EXTRACTING
+  EVALUATING
+  READY
+  FAILED
 }
