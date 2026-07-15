@@ -27,10 +27,11 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ### 1. Authentication and protected application shell
 
-- [ ] Implement teacher sign-in with Auth.js.
-- [ ] Protect application routes and redirect unauthenticated users.
-- [ ] Create an accessible dashboard shell with navigation, user menu, and empty states.
-- [ ] Define the `User` schema and ownership helpers.
+- [x] Implement first-party teacher email/password sign-up and sign-in.
+- [x] Protect application routes and redirect unauthenticated users.
+- [x] Create an accessible dashboard shell with navigation, user menu, and empty states.
+- [x] Define the `User` schema and ownership helpers.
+- [ ] Configure the Supabase project, apply the `users` migration, and manually verify sign-up, sign-in, sign-out, and a persistent session.
 
 **Done when:** an authenticated teacher can access the dashboard while unauthenticated visitors cannot.
 

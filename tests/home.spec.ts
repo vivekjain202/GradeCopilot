@@ -9,3 +9,10 @@ test("shows the GradeCopilot foundation page", async ({ page }) => {
     }),
   ).toBeVisible();
 });
+
+test("redirects unauthenticated teachers to sign in", async ({ page }) => {
+  await page.goto("/dashboard");
+
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+});

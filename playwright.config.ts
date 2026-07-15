@@ -15,6 +15,19 @@ export default defineConfig({
   },
   webServer: {
     command: "npm run dev",
+    env: {
+      ...process.env,
+      DATABASE_URL:
+        process.env.DATABASE_URL ??
+        "postgresql://postgres:postgres@localhost:5432/gradecopilot",
+      DIRECT_URL:
+        process.env.DIRECT_URL ??
+        "postgresql://postgres:postgres@localhost:5432/gradecopilot",
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? baseURL,
+      SESSION_SECRET:
+        process.env.SESSION_SECRET ??
+        "test-session-secret-that-is-at-least-32-characters",
+    },
     url: baseURL,
     reuseExistingServer: !process.env.CI,
   },

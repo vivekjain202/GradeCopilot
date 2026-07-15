@@ -7,4 +7,13 @@ datasource db {
   provider = "postgresql"
 }
 
-// Domain models are introduced with their owning feature milestones.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}

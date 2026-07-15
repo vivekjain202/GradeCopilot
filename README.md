@@ -14,14 +14,15 @@ GradeCopilot helps teachers review AI-assisted grading drafts, provide anchored 
 
 - Node.js 20.19+ (Node 22 LTS recommended)
 - npm 10+
-- A Supabase project for database access when database-backed work begins
+- A Supabase project (authentication stores teacher accounts in Postgres)
 
 ## Local setup
 
 1. Install dependencies with `npm install`.
-2. Copy `.env.example` to `.env.local` and fill in local values.
-3. Start the application with `npm run dev`.
-4. Open `http://localhost:3000`.
+2. Copy `.env.example` to `.env.local`, then add your Supabase connection strings and a unique `SESSION_SECRET`.
+3. Apply database migrations with `npm run db:deploy`.
+4. Start the application with `npm run dev`.
+5. Open `http://localhost:3000`, create a teacher account, and sign in.
 
 `DATABASE_URL` should be the Supabase direct Postgres connection string. `DIRECT_URL` is reserved for Prisma migration commands and should use the direct database connection, rather than a pooled transaction URL.
 
@@ -43,7 +44,7 @@ GradeCopilot helps teachers review AI-assisted grading drafts, provide anchored 
 
 ## Environment and secrets
 
-Never commit `.env.local`, database URLs, Supabase service-role keys, or AI API keys. Configure production variables in Vercel, and use a separate Supabase project for production.
+Never commit `.env.local`, database URLs, session secrets, Supabase service-role keys, or AI API keys. Configure production variables in Vercel, and use a separate Supabase project for production. Teacher passwords are salted and hashed before storage; the application only stores a signed, HTTP-only session cookie in the browser.
 
 ## Deployment
 
