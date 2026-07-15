@@ -16,12 +16,12 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ### 0. Project foundation — first task
 
-- [ ] Initialize a Next.js App Router project with TypeScript, ESLint, Prettier, Tailwind CSS, and a small accessible component foundation.
-- [ ] Add `.env.example` and typed environment validation without committing secrets.
-- [ ] Add Vitest for unit tests and Playwright for end-to-end tests, with one passing smoke test each.
-- [ ] Add Prisma configured for Supabase Postgres and create the initial migration workflow.
-- [ ] Add CI to run type checking, linting, unit tests, and build on pull requests.
-- [ ] Add a concise `README.md` covering local setup, required services, and test commands.
+- [x] Initialize a Next.js App Router project with TypeScript, ESLint, Prettier, Tailwind CSS, and a small accessible component foundation.
+- [x] Add `.env.example` and typed environment validation without committing secrets.
+- [x] Add Vitest for unit tests and Playwright for end-to-end tests, with one passing smoke test each.
+- [x] Add Prisma configured for Supabase Postgres and create the initial migration workflow.
+- [x] Add CI to run type checking, linting, unit tests, and build on pull requests.
+- [x] Add a concise `README.md` covering local setup, required services, and test commands.
 
 **Done when:** a new developer can clone the repository, configure local environment variables, run the app and automated checks, and see CI validate pull requests.
 
