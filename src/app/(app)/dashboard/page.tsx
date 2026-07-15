@@ -33,10 +33,10 @@ export default async function DashboardPage() {
           Welcome, {teacher.name}
         </h1>
         <p className="mt-3 max-w-xl text-slate-600">
-          Your secure workspace is ready. Student, test, and rubric management is next.
+          Manage students and rubric-based tests from your secure workspace.
         </p>
         <div className="mt-10 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-slate-600">
-          No tests yet. Create your first test in the next milestone.
+          Start by adding students, then create your first rubric-based test.
         </div>
       </section>
     </main>
