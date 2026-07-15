@@ -63,14 +63,14 @@ The MVP should prove one end-to-end workflow:
 | --- | --- | --- |
 | Full-stack framework | Next.js (App Router) + TypeScript | React UI, server routes/actions, and a single deployable app. |
 | UI | Tailwind CSS + shadcn/ui | Fast, accessible teacher-facing UI. |
-| Database | PostgreSQL + Prisma | Relational data for tests, students, evaluations, and versions. |
+| Database | Supabase Postgres + Prisma | Managed PostgreSQL, relational data, and an easy path to hosted storage. |
 | Authentication | Auth.js | Teacher login with familiar Next.js integration. |
-| File storage | S3-compatible storage (e.g. Cloudflare R2) | Private, scalable storage for test copies. |
+| File storage | Supabase Storage | Private, scalable storage for test copies alongside the database. |
 | Background jobs | Inngest or Trigger.dev | Reliable asynchronous OCR and AI processing. |
 | Document editor | Tiptap (ProseMirror) | Rich-text content with stable anchors for sidebar comments. |
 | AI | OpenAI API with structured JSON outputs | Rubric-based evaluation and report writing with predictable data. |
 | OCR | OpenAI vision for MVP, with pluggable OCR provider later | Keeps the first workflow simple while supporting handwritten/photo submissions. |
-| Deployment | Vercel + managed Postgres | Low operational overhead for the initial product. |
+| Deployment | Vercel + Supabase | Low operational overhead for the initial product. |
 
 ## 5. Core experience and screens
 
@@ -231,4 +231,4 @@ A teacher can sign in, create a rubric-based test and student, upload a single t
 - Which first submission format to optimize for: typed PDFs, scanned handwriting, or mobile photos.
 - Whether the first release needs email delivery, or a share link is sufficient.
 - Whether a report card represents one test only (recommended MVP) or aggregates multiple tests.
-- Preferred hosting accounts for Postgres, storage, and AI API credentials.
+- Supabase project and Vercel account/environment configuration for production credentials.
