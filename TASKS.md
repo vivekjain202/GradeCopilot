@@ -58,12 +58,12 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ### 4. Evaluation workspace with deterministic draft data
 
-- [ ] Define evaluation, evaluation-question, comment-thread, comment, and audit-version models.
-- [ ] Create a deterministic mock evaluator that generates a repeatable draft from the rubric.
-- [ ] Build the evaluation workspace: score summary, answer document, and anchored comment sidebar.
-- [ ] Use Tiptap document anchors tied to answer/question blocks, including orphaned-anchor handling.
-- [ ] Allow teachers to edit transcription, scores, and comments; create/resolve/delete threads.
-- [ ] Validate marks against rubric limits and persist teacher changes safely.
+- [x] Define evaluation, evaluation-question, comment-thread, comment, and audit-version models.
+- [x] Create a deterministic mock evaluator that generates a repeatable draft from the rubric.
+- [x] Build the evaluation workspace: score summary, answer document, and anchored comment sidebar.
+- [x] Use Tiptap document anchors tied to answer/question blocks, including orphaned-anchor handling.
+- [x] Allow teachers to edit transcription, scores, and comments; create/resolve/delete threads.
+- [x] Validate marks against rubric limits and persist teacher changes safely.
 
 **Done when:** a teacher can complete the full review experience without any live AI dependency.
 

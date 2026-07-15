@@ -113,6 +113,7 @@ model Evaluation {
   submission          Submission           @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   questions           EvaluationQuestion[]
   commentThreads      CommentThread[]
+  versions            EvaluationVersion[]
 
   @@map("evaluations")
 }
@@ -159,6 +160,18 @@ model Comment {
   @@map("comments")
 }
 
+model EvaluationVersion {
+  id           String     @id @default(cuid())
+  evaluationId String
+  version      Int
+  snapshot     Json
+  createdAt    DateTime   @default(now())
+  evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+
+  @@unique([evaluationId, version])
+  @@map("evaluation_versions")
+}
+
 enum ProcessingStatus {
   UPLOADED
   QUEUED
@@ -176,6 +189,7 @@ enum EvaluationStatus {
 enum CommentStatus {
   OPEN
   RESOLVED
+  ORPHANED
 }
 
 enum CommentAuthorType {
