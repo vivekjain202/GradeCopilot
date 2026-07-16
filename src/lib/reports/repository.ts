@@ -75,6 +75,17 @@ export function findReportByTeacher(teacherId: string, reportId: string) {
   });
 }
 
+export function findPublishedReportByTokenHash(tokenHash: string) {
+  return db.reportCard.findFirst({
+    where: { status: "PUBLISHED", publishTokenHash: tokenHash },
+    include: {
+      evaluation: {
+        include: { submission: { include: { student: true, test: true } } },
+      },
+    },
+  });
+}
+
 export function reportSnapshot(report: {
   summary: string;
   strengths: unknown;
