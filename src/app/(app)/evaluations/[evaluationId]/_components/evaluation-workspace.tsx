@@ -8,6 +8,8 @@ import type { JSONContent } from "@tiptap/core";
 import {
   createCommentThread,
   deleteCommentThread,
+  finalizeEvaluation,
+  reopenEvaluation,
   resolveCommentThread,
   updateEvaluationAnswer,
   updateEvaluationMarks,
@@ -35,12 +37,22 @@ type Question = {
 
 type EvaluationWorkspaceProps = {
   evaluationId: string;
+  status: "DRAFT" | "FINALIZED";
+  history: Array<{
+    id: string;
+    version: number;
+    event: "FINALIZED" | "REOPENED";
+    actorName: string;
+    createdAt: string;
+  }>;
   initialQuestions: Question[];
   initialThreads: Thread[];
 };
 
 export function EvaluationWorkspace({
   evaluationId,
+  status,
+  history,
   initialQuestions,
   initialThreads,
 }: EvaluationWorkspaceProps) {
@@ -52,6 +64,7 @@ export function EvaluationWorkspace({
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const isDraft = status === "DRAFT";
   const selectedQuestion = questions.find(
     (question) => question.id === selectedQuestionId,
   );
@@ -100,16 +113,41 @@ export function EvaluationWorkspace({
       <section className="rounded-xl border bg-white">
         <header className="flex flex-wrap items-center justify-between gap-3 border-b p-5">
           <div>
-            <h1 className="text-xl font-bold">Evaluation draft</h1>
+            <h1 className="text-xl font-bold">
+              Evaluation {isDraft ? "draft" : "finalized"}
+            </h1>
             <p className="text-sm text-slate-600">
               Review the transcription, marks, and feedback before finalizing.
             </p>
           </div>
-          <p className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
-            {total} / {maxTotal}
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+              {total} / {maxTotal}
+            </p>
+            <button
+              className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              disabled={isPending}
+              onClick={() => {
+                const message = isDraft
+                  ? "Finalize this evaluation? Approved marks and feedback will be snapshotted and editing will be locked."
+                  : "Reopen this finalized evaluation? This will create an audit entry and allow further edits.";
+                if (window.confirm(message)) {
+                  runMutation(() =>
+                    isDraft
+                      ? finalizeEvaluation(evaluationId)
+                      : reopenEvaluation(evaluationId),
+                  );
+                }
+              }}
+              type="button"
+            >
+              {isDraft ? "Finalize evaluation" : "Reopen for editing"}
+            </button>
+          </div>
         </header>
-        <div className="space-y-5 p-5">
+        <div
+          className={`space-y-5 p-5 ${isDraft ? "" : "pointer-events-none opacity-70"}`}
+        >
           {questions.map((question) => (
             <QuestionEditor
               key={question.id}
@@ -148,7 +186,9 @@ export function EvaluationWorkspace({
               : "Select answer text to anchor a new comment."}
           </p>
         </header>
-        <div className="space-y-4 p-4">
+        <div
+          className={`space-y-4 p-4 ${isDraft ? "" : "pointer-events-none opacity-70"}`}
+        >
           <label
             className="grid gap-1 text-sm font-medium text-slate-800"
             htmlFor="comment"
@@ -216,6 +256,21 @@ export function EvaluationWorkspace({
             </p>
           )}
         </div>
+        <section className="border-t p-4">
+          <h3 className="text-sm font-semibold">History</h3>
+          {history.length ? (
+            <ol className="mt-3 space-y-2 text-sm text-slate-600">
+              {history.map((entry) => (
+                <li key={entry.id}>
+                  Version {entry.version} · {entry.event.toLowerCase()} by{" "}
+                  {entry.actorName} · {new Date(entry.createdAt).toLocaleString()}
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="mt-2 text-sm text-slate-600">No approval history yet.</p>
+          )}
+        </section>
       </aside>
     </div>
   );

@@ -7,9 +7,9 @@ import { requireAuthenticatedTeacher } from "@/lib/authorization";
 import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 
-async function ownedEvaluation(teacherId: string, evaluationId: string) {
+async function ownedDraftEvaluation(teacherId: string, evaluationId: string) {
   return db.evaluation.findFirst({
-    where: { id: evaluationId, submission: { teacherId } },
+    where: { id: evaluationId, status: "DRAFT", submission: { teacherId } },
     select: { id: true },
   });
 }
@@ -38,8 +38,8 @@ export async function updateEvaluationMarks(
   const teacher = await requireAuthenticatedTeacher();
   if (!Number.isInteger(earnedMarksFinal) || earnedMarksFinal < 0)
     throw new Error("Invalid mark.");
-  if (!(await ownedEvaluation(teacher.id, evaluationId)))
-    throw new Error("Evaluation not found.");
+  if (!(await ownedDraftEvaluation(teacher.id, evaluationId)))
+    throw new Error("Finalized evaluations must be reopened before editing.");
   const question = await db.evaluationQuestion.findFirst({
     where: { id: questionId, evaluationId },
     include: { rubricQuestion: true },
@@ -63,8 +63,8 @@ export async function updateEvaluationMarks(
 
 export async function resolveCommentThread(evaluationId: string, threadId: string) {
   const teacher = await requireAuthenticatedTeacher();
-  if (!(await ownedEvaluation(teacher.id, evaluationId)))
-    throw new Error("Evaluation not found.");
+  if (!(await ownedDraftEvaluation(teacher.id, evaluationId)))
+    throw new Error("Finalized evaluations must be reopened before editing.");
   await db.commentThread.updateMany({
     where: { id: threadId, evaluationId },
     data: { status: "RESOLVED" },
@@ -80,8 +80,8 @@ export async function updateEvaluationAnswer(
   const teacher = await requireAuthenticatedTeacher();
   const document = documentContentSchema.safeParse(answerContentJson);
 
-  if (!document.success || !(await ownedEvaluation(teacher.id, evaluationId))) {
-    throw new Error("Evaluation answer not found.");
+  if (!document.success || !(await ownedDraftEvaluation(teacher.id, evaluationId))) {
+    throw new Error("Finalized evaluations must be reopened before editing.");
   }
 
   const question = await db.evaluationQuestion.findFirst({
@@ -127,7 +127,7 @@ export async function createCommentThread(input: unknown) {
 
   if (
     !parsed.success ||
-    !(await ownedEvaluation(teacher.id, parsed.data.evaluationId))
+    !(await ownedDraftEvaluation(teacher.id, parsed.data.evaluationId))
   ) {
     throw new Error("Could not create this comment.");
   }
@@ -154,8 +154,8 @@ export async function createCommentThread(input: unknown) {
 
 export async function deleteCommentThread(evaluationId: string, threadId: string) {
   const teacher = await requireAuthenticatedTeacher();
-  if (!(await ownedEvaluation(teacher.id, evaluationId))) {
-    throw new Error("Evaluation not found.");
+  if (!(await ownedDraftEvaluation(teacher.id, evaluationId))) {
+    throw new Error("Finalized evaluations must be reopened before editing.");
   }
 
   await db.commentThread.deleteMany({ where: { id: threadId, evaluationId } });
@@ -173,4 +173,127 @@ function readAnchorQuote(anchorJson: unknown) {
   }
 
   return null;
+}
+
+export async function finalizeEvaluation(evaluationId: string) {
+  const teacher = await requireAuthenticatedTeacher();
+  const evaluation = await db.evaluation.findFirst({
+    where: { id: evaluationId, status: "DRAFT", submission: { teacherId: teacher.id } },
+    include: {
+      questions: { include: { rubricQuestion: true } },
+      commentThreads: { include: { comments: true } },
+    },
+  });
+
+  if (!evaluation) {
+    throw new Error("Only draft evaluations can be finalized.");
+  }
+
+  await db.$transaction(async (transaction) => {
+    const latest = await transaction.evaluationVersion.aggregate({
+      where: { evaluationId },
+      _max: { version: true },
+    });
+    const version = (latest._max.version ?? 0) + 1;
+    const snapshot = createEvaluationSnapshot(evaluation, "FINALIZED");
+
+    await transaction.evaluationVersion.create({
+      data: {
+        evaluationId,
+        version,
+        event: "FINALIZED",
+        actorName: teacher.name,
+        snapshot: snapshot as Prisma.InputJsonValue,
+      },
+    });
+    await transaction.evaluation.update({
+      where: { id: evaluationId },
+      data: { status: "FINALIZED", finalizedAt: new Date() },
+    });
+  });
+  revalidatePath(`/evaluations/${evaluationId}`);
+}
+
+export async function reopenEvaluation(evaluationId: string) {
+  const teacher = await requireAuthenticatedTeacher();
+  const evaluation = await db.evaluation.findFirst({
+    where: {
+      id: evaluationId,
+      status: "FINALIZED",
+      submission: { teacherId: teacher.id },
+    },
+    include: {
+      questions: { include: { rubricQuestion: true } },
+      commentThreads: { include: { comments: true } },
+    },
+  });
+
+  if (!evaluation) {
+    throw new Error("Only finalized evaluations can be reopened.");
+  }
+
+  await db.$transaction(async (transaction) => {
+    const latest = await transaction.evaluationVersion.aggregate({
+      where: { evaluationId },
+      _max: { version: true },
+    });
+    await transaction.evaluationVersion.create({
+      data: {
+        evaluationId,
+        version: (latest._max.version ?? 0) + 1,
+        event: "REOPENED",
+        actorName: teacher.name,
+        snapshot: createEvaluationSnapshot(
+          evaluation,
+          "REOPENED",
+        ) as Prisma.InputJsonValue,
+      },
+    });
+    await transaction.evaluation.update({
+      where: { id: evaluationId },
+      data: { status: "DRAFT", finalizedAt: null },
+    });
+  });
+  revalidatePath(`/evaluations/${evaluationId}`);
+}
+
+function createEvaluationSnapshot(
+  evaluation: {
+    totalFinalMarks: number;
+    totalSuggestedMarks: number;
+    overallFeedback: string | null;
+    questions: Array<{
+      rubricQuestion: { label: string; maxMarks: number };
+      earnedMarksFinal: number;
+      earnedMarksSuggested: number;
+      rationale: string;
+      answerContentJson: unknown;
+    }>;
+    commentThreads: Array<{
+      status: string;
+      anchorJson: unknown;
+      comments: Array<{ body: string; authorType: string }>;
+    }>;
+  },
+  event: "FINALIZED" | "REOPENED",
+) {
+  return {
+    event,
+    totalFinalMarks: evaluation.totalFinalMarks,
+    totalSuggestedMarks: evaluation.totalSuggestedMarks,
+    overallFeedback: evaluation.overallFeedback,
+    questions: evaluation.questions.map((question) => ({
+      label: question.rubricQuestion.label,
+      maxMarks: question.rubricQuestion.maxMarks,
+      earnedMarksFinal: question.earnedMarksFinal,
+      earnedMarksSuggested: question.earnedMarksSuggested,
+      rationale: question.rationale,
+      answerContentJson: question.answerContentJson,
+    })),
+    comments: evaluation.commentThreads.map((thread) => ({
+      status: thread.status,
+      anchorJson: thread.anchorJson,
+      comments: thread.comments,
+    })),
+  };
 }

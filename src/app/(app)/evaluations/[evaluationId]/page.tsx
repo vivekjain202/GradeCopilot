@@ -18,6 +18,7 @@ export default async function EvaluationPage({
       commentThreads: {
         include: { comments: true, question: { include: { rubricQuestion: true } } },
       },
+      versions: { orderBy: { version: "desc" } },
     },
   });
   if (!evaluation) notFound();
@@ -25,6 +26,13 @@ export default async function EvaluationPage({
     <main className="mx-auto max-w-7xl px-6 py-8">
       <EvaluationWorkspace
         evaluationId={evaluation.id}
+        history={evaluation.versions.map((version) => ({
+          id: version.id,
+          version: version.version,
+          event: version.event,
+          actorName: version.actorName,
+          createdAt: version.createdAt.toISOString(),
+        }))}
         initialQuestions={evaluation.questions.map((question) => ({
           id: question.id,
           label: question.rubricQuestion.label,
@@ -33,6 +41,7 @@ export default async function EvaluationPage({
           rationale: question.rationale,
           answerContent: question.answerContentJson,
         }))}
+        status={evaluation.status}
         initialThreads={evaluation.commentThreads.map((thread) => ({
           id: thread.id,
           questionId: thread.questionId,
