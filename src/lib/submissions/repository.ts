@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 export function listSubmissions(teacherId: string) {
   return db.submission.findMany({
     where: { teacherId },
-    include: { student: true, test: true },
+    include: { student: true, test: true, evaluation: { select: { id: true } } },
     orderBy: { createdAt: "desc" },
   });
 }

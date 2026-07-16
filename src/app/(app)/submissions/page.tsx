@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getAuthenticatedTeacher } from "@/lib/authorization";
 import { isSubmissionRetryable } from "@/lib/submissions/processing";
 import { listSubmissions } from "@/lib/submissions/repository";
-import { createEvaluationDraftAction, retrySubmissionAction } from "./actions";
+import { retrySubmissionAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -43,11 +43,6 @@ export default async function SubmissionsPage() {
         <ul className="mt-8 space-y-3">
           {submissions.map((submission) => {
             const retryAction = retrySubmissionAction.bind(null, submission.id);
-            const createDraftAction = createEvaluationDraftAction.bind(
-              null,
-              submission.id,
-            );
-
             return (
               <li className="rounded-xl border bg-white p-5" key={submission.id}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -71,14 +66,14 @@ export default async function SubmissionsPage() {
                     >
                       View copy
                     </a>
-                    <form action={createDraftAction}>
-                      <button
+                    {submission.evaluation ? (
+                      <Link
                         className="rounded-lg border border-indigo-300 px-3 py-2 text-sm font-semibold text-indigo-700"
-                        type="submit"
+                        href={`/evaluations/${submission.evaluation.id}`}
                       >
                         Open draft
-                      </button>
-                    </form>
+                      </Link>
+                    ) : null}
                     {isSubmissionRetryable(submission.processingStatus) ? (
                       <form action={retryAction}>
                         <button

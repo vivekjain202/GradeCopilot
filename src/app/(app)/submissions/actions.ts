@@ -3,13 +3,11 @@
 import { randomUUID } from "crypto";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import { requireAuthenticatedTeacher } from "@/lib/authorization";
 import { db } from "@/lib/db";
 import { createSubmissionUploadUrl } from "@/lib/storage";
 import { enqueueProcessingJob } from "@/lib/submissions/jobs";
-import { createEvaluationDraft } from "@/lib/evaluations/repository";
 import {
   completeSubmissionUploadSchema,
   submissionMetadataSchema,
@@ -75,7 +73,7 @@ export async function completeSubmissionUpload(input: unknown) {
   }
 
   const submission = await db.submission.create({
-    data: { ...parsed.data, teacherId: teacher.id },
+    data: { ...parsed.data, teacherId: teacher.id, processingStatus: "QUEUED" },
   });
   await enqueueProcessingJob(submission.id);
 
@@ -92,15 +90,4 @@ export async function retrySubmissionAction(submissionId: string) {
   }
 
   revalidatePath("/submissions");
-}
-
-export async function createEvaluationDraftAction(submissionId: string) {
-  const teacher = await requireAuthenticatedTeacher();
-  const evaluation = await createEvaluationDraft(teacher.id, submissionId);
-
-  if (!evaluation) {
-    throw new Error("Submission not found.");
-  }
-
-  redirect(`/evaluations/${evaluation.id}`);
 }

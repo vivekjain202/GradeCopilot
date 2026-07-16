@@ -19,7 +19,7 @@ GradeCopilot helps teachers review AI-assisted grading drafts, provide anchored 
 ## Local setup
 
 1. Install dependencies with `npm install`.
-2. Copy `.env.example` to `.env.local`, then add your Supabase connection strings and a unique `SESSION_SECRET`.
+2. Copy `.env.example` to `.env.local`, then add your Supabase connection strings, OpenAI API key, and unique `SESSION_SECRET` and `CRON_SECRET` values.
 3. Apply database migrations with `npm run db:deploy`.
 4. Start the application with `npm run dev`.
 5. Open `http://localhost:3000`, create a teacher account, and sign in.
@@ -56,7 +56,11 @@ The browser receives a short-lived, server-created upload URL and uploads direct
 
 Vercel deploys the production branch (`master`). Before connecting the repository, set the required environment variables in Vercel and configure a separate Supabase production database. Apply migrations with `npm run db:deploy` before deploying application code that relies on them. See [the operations runbook](docs/OPERATIONS.md) for the production checklist, security controls, backup expectations, and incident guidance.
 
-The background processing queue deliberately has no OCR/LLM provider enabled yet. Uploads can be queued safely; provider selection and credentials will be added later without changing the teacher review flow.
+## AI processing
+
+OpenAI is used for both vision transcription and structured draft evaluation. A queued upload is picked up by the Vercel Cron endpoint every five minutes. It creates a reviewable evaluation draft with proposed marks, answer transcription, and anchored AI comments; it never finalizes an evaluation or publishes a report.
+
+Set `OPENAI_API_KEY` and, optionally, `OPENAI_MODEL` in each Vercel environment. Set `CRON_SECRET` to a unique value of at least 32 characters; Vercel sends this secret to the scheduled endpoint. Uploaded files are supplied through short-lived Supabase signed URLs and are not made public.
 
 ## Project conventions
 
