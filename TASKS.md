@@ -69,9 +69,9 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ### 5. Finalize evaluations and audit history
 
-- [ ] Add explicit evaluation finalization with a confirmation flow.
-- [ ] Snapshot the finalized evaluation and prevent accidental edits; support intentional reopen with audit entry.
-- [ ] Show finalized status and basic history.
+- [x] Add explicit evaluation finalization with a confirmation flow.
+- [x] Snapshot the finalized evaluation and prevent accidental edits; support intentional reopen with audit entry.
+- [x] Show finalized status and basic history.
 
 **Done when:** a teacher can confidently identify the exact approved marks and feedback used to create a report.
 

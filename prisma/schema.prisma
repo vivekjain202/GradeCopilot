@@ -164,6 +164,8 @@ model EvaluationVersion {
   id           String     @id @default(cuid())
   evaluationId String
   version      Int
+  event        EvaluationVersionEvent
+  actorName    String
   snapshot     Json
   createdAt    DateTime   @default(now())
   evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
@@ -184,6 +186,11 @@ enum ProcessingStatus {
 enum EvaluationStatus {
   DRAFT
   FINALIZED
+}
+
+enum EvaluationVersionEvent {
+  FINALIZED
+  REOPENED
 }
 
 enum CommentStatus {
