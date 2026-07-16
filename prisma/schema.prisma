@@ -114,6 +114,7 @@ model Evaluation {
   questions           EvaluationQuestion[]
   commentThreads      CommentThread[]
   versions            EvaluationVersion[]
+  report              ReportCard?
 
   @@map("evaluations")
 }
@@ -174,6 +175,35 @@ model EvaluationVersion {
   @@map("evaluation_versions")
 }
 
+model ReportCard {
+  id               String       @id @default(cuid())
+  evaluationId     String       @unique
+  status           ReportStatus @default(DRAFT)
+  summary          String
+  strengths        Json
+  improvementAreas Json
+  nextSteps        Json
+  teacherNote      String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  evaluation       Evaluation   @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  versions         ReportVersion[]
+
+  @@map("report_cards")
+}
+
+model ReportVersion {
+  id           String     @id @default(cuid())
+  reportCardId String
+  version      Int
+  snapshot     Json
+  createdAt    DateTime   @default(now())
+  reportCard   ReportCard @relation(fields: [reportCardId], references: [id], onDelete: Cascade)
+
+  @@unique([reportCardId, version])
+  @@map("report_versions")
+}
+
 enum ProcessingStatus {
   UPLOADED
   QUEUED
@@ -186,6 +216,10 @@ enum ProcessingStatus {
 enum EvaluationStatus {
   DRAFT
   FINALIZED
+}
+
+enum ReportStatus {
+  DRAFT
 }
 
 enum EvaluationVersionEvent {
