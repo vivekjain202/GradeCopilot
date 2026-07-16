@@ -61,6 +61,7 @@ model RubricQuestion {
   id             String @id @default(cuid())
   testId         String
   position       Int
+  questionNumber String
   label          String
   prompt         String
   expectedAnswer String
@@ -70,6 +71,7 @@ model RubricQuestion {
   evaluations    EvaluationQuestion[]
 
   @@unique([testId, position])
+  @@unique([testId, questionNumber])
   @@map("rubric_questions")
 }
 

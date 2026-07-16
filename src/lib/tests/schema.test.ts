@@ -10,6 +10,7 @@ const baseInput = {
   totalMarks: 10,
   questions: [
     {
+      questionNumber: "1",
       label: "Q1",
       prompt: "Solve x + 2 = 5.",
       expectedAnswer: "x = 3",
@@ -36,5 +37,18 @@ describe("test input", () => {
         "Rubric marks total 8; they must equal the test total.",
       ]);
     }
+  });
+
+  it("rejects duplicate student-facing question numbers", () => {
+    expect(
+      testSchema.safeParse({
+        ...baseInput,
+        totalMarks: 20,
+        questions: [
+          baseInput.questions[0],
+          { ...baseInput.questions[0], label: "Q1b", maxMarks: 10 },
+        ],
+      }).success,
+    ).toBe(false);
   });
 });
