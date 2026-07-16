@@ -78,7 +78,7 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 ### 6. AI evaluation pipeline
 
 - [x] Configure a provider-neutral durable queue and idempotent processing jobs.
-- [ ] Add OCR/vision extraction and structured AI evaluation responses. _(Deferred pending vendor selection.)_
+- [x] Add OpenAI vision extraction and structured AI evaluation responses.
 - [x] Define schemas for OCR and structured evaluation responses; enforce score validation when the provider adapter is added.
 - [x] Preserve queued/failed processing states and retry UI; provider-specific uncertainty messaging is deferred.
 - [x] Add privacy-conscious operational guidance and error metadata fields.
@@ -115,4 +115,4 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ## Execution order
 
-The remaining implementation dependency is choosing and configuring the OCR and LLM providers for Task 6.
+Task 6 is complete. The remaining launch work is configuring Vercel and production Supabase environments from the runbook.

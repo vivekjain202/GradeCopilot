@@ -12,6 +12,7 @@ export const evaluationResultSchema = z.object({
     z.object({
       rubricQuestionId: z.string().cuid(),
       suggestedMarks: z.number().int().nonnegative(),
+      answerText: z.string(),
       rationale: z.string(),
       comments: z.array(z.string()),
     }),
@@ -28,7 +29,13 @@ export type OcrProvider = {
 export type EvaluationProvider = {
   evaluate(input: {
     transcription: z.infer<typeof ocrResultSchema>;
-    rubric: Array<{ id: string; prompt: string; criteria: string; maxMarks: number }>;
+    rubric: Array<{
+      id: string;
+      questionNumber: string;
+      prompt: string;
+      criteria: string;
+      maxMarks: number;
+    }>;
   }): Promise<z.infer<typeof evaluationResultSchema>>;
 };
 
