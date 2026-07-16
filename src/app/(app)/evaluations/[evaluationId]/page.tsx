@@ -24,18 +24,22 @@ export default async function EvaluationPage({
   return (
     <main className="mx-auto max-w-7xl px-6 py-8">
       <EvaluationWorkspace
+        evaluationId={evaluation.id}
         initialQuestions={evaluation.questions.map((question) => ({
           id: question.id,
           label: question.rubricQuestion.label,
           maxMarks: question.rubricQuestion.maxMarks,
           marks: question.earnedMarksFinal,
           rationale: question.rationale,
+          answerContent: question.answerContentJson,
         }))}
         initialThreads={evaluation.commentThreads.map((thread) => ({
           id: thread.id,
+          questionId: thread.questionId,
           label: thread.question?.rubricQuestion.label ?? "General feedback",
           body: thread.comments[0]?.body ?? "No comment yet.",
           status: thread.status,
+          anchor: thread.anchorJson,
         }))}
       />
     </main>
