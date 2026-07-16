@@ -34,6 +34,7 @@ export default async function ReportPage({
             teacherNote: report.teacherNote ?? "",
           }}
           reportId={report.id}
+          status={report.status}
         />
       </div>
       <p className="mt-4 text-sm text-slate-600">

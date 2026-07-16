@@ -94,10 +94,25 @@ model Submission {
   test             Test             @relation(fields: [testId], references: [id], onDelete: Cascade)
   student          Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
   evaluation       Evaluation?
+  processingJob    ProcessingJob?
 
   @@index([teacherId, createdAt])
   @@index([testId, studentId])
   @@map("submissions")
+}
+
+model ProcessingJob {
+  id           String            @id @default(cuid())
+  submissionId String            @unique
+  status       ProcessingJobStatus @default(QUEUED)
+  attempts     Int               @default(0)
+  errorCode    String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  submission   Submission        @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@map("processing_jobs")
 }
 
 model Evaluation {
@@ -184,6 +199,8 @@ model ReportCard {
   improvementAreas Json
   nextSteps        Json
   teacherNote      String?
+  publishTokenHash String?      @unique
+  publishedAt      DateTime?
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   evaluation       Evaluation   @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
@@ -213,6 +230,13 @@ enum ProcessingStatus {
   FAILED
 }
 
+enum ProcessingJobStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
 enum EvaluationStatus {
   DRAFT
   FINALIZED
@@ -220,6 +244,7 @@ enum EvaluationStatus {
 
 enum ReportStatus {
   DRAFT
+  PUBLISHED
 }
 
 enum EvaluationVersionEvent {

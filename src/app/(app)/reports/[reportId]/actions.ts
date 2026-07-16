@@ -7,6 +7,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { requireAuthenticatedTeacher } from "@/lib/authorization";
 import { db } from "@/lib/db";
 import { reportSnapshot } from "@/lib/reports/repository";
+import { createShareToken, hashShareToken } from "@/lib/reports/sharing";
 
 const reportInputSchema = z.object({
   summary: z.string().trim().min(1).max(4000),
@@ -49,5 +50,36 @@ export async function saveReportCard(reportId: string, input: unknown) {
       },
     });
   });
+  revalidatePath(`/reports/${reportId}`);
+}
+
+export async function publishReportCard(reportId: string) {
+  const teacher = await requireAuthenticatedTeacher();
+  const report = await db.reportCard.findFirst({
+    where: { id: reportId, evaluation: { submission: { teacherId: teacher.id } } },
+    select: { id: true },
+  });
+  if (!report) throw new Error("Report not found.");
+
+  const token = createShareToken();
+  await db.reportCard.update({
+    where: { id: report.id },
+    data: {
+      status: "PUBLISHED",
+      publishTokenHash: hashShareToken(token),
+      publishedAt: new Date(),
+    },
+  });
+  revalidatePath(`/reports/${reportId}`);
+  return { token };
+}
+
+export async function unpublishReportCard(reportId: string) {
+  const teacher = await requireAuthenticatedTeacher();
+  const result = await db.reportCard.updateMany({
+    where: { id: reportId, evaluation: { submission: { teacherId: teacher.id } } },
+    data: { status: "DRAFT", publishTokenHash: null, publishedAt: null },
+  });
+  if (result.count !== 1) throw new Error("Report not found.");
   revalidatePath(`/reports/${reportId}`);
 }

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 
-import { saveReportCard } from "../actions";
+import { publishReportCard, saveReportCard, unpublishReportCard } from "../actions";
 
 type ReportEditorProps = {
   reportId: string;
@@ -13,12 +13,14 @@ type ReportEditorProps = {
     nextSteps: string[];
     teacherNote: string;
   };
+  status: "DRAFT" | "PUBLISHED";
 };
 
-export function ReportEditor({ reportId, initialReport }: ReportEditorProps) {
+export function ReportEditor({ reportId, initialReport, status }: ReportEditorProps) {
   const [report, setReport] = useState(initialReport);
   const [message, setMessage] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const [shareUrl, setShareUrl] = useState<string>();
 
   function save() {
     setMessage(undefined);
@@ -29,6 +31,27 @@ export function ReportEditor({ reportId, initialReport }: ReportEditorProps) {
       } catch (error) {
         setMessage(
           error instanceof Error ? error.message : "Report could not be saved.",
+        );
+      }
+    });
+  }
+
+  function togglePublishing() {
+    setMessage(undefined);
+    startTransition(async () => {
+      try {
+        if (status === "PUBLISHED") {
+          await unpublishReportCard(reportId);
+          setShareUrl(undefined);
+          setMessage("Report link revoked.");
+        } else {
+          const { token } = await publishReportCard(reportId);
+          setShareUrl(`${window.location.origin}/r/${token}`);
+          setMessage("Report published. Copy the private link below now.");
+        }
+      } catch (error) {
+        setMessage(
+          error instanceof Error ? error.message : "Publishing could not be updated.",
         );
       }
     });
@@ -78,6 +101,24 @@ export function ReportEditor({ reportId, initialReport }: ReportEditorProps) {
       >
         {isPending ? "Saving…" : "Save report version"}
       </button>
+      <button
+        className="ml-3 rounded-lg border border-slate-300 px-4 py-2.5 font-semibold text-slate-800 disabled:opacity-60"
+        disabled={isPending}
+        onClick={togglePublishing}
+        type="button"
+      >
+        {status === "PUBLISHED" ? "Unpublish and revoke link" : "Publish private link"}
+      </button>
+      {shareUrl ? (
+        <label className="mt-4 grid gap-1 text-sm font-medium text-slate-800">
+          Private share link
+          <input
+            className="rounded-lg border border-slate-300 p-2 font-normal"
+            readOnly
+            value={shareUrl}
+          />
+        </label>
+      ) : null}
     </div>
   );
 }

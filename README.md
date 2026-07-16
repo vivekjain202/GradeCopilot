@@ -54,7 +54,9 @@ The browser receives a short-lived, server-created upload URL and uploads direct
 
 ## Deployment
 
-Vercel deploys the production branch (`master`). Before connecting the repository, set the required environment variables in Vercel and configure a Supabase production database. Apply migrations with `npm run db:deploy` as part of the deployment workflow.
+Vercel deploys the production branch (`master`). Before connecting the repository, set the required environment variables in Vercel and configure a separate Supabase production database. Apply migrations with `npm run db:deploy` before deploying application code that relies on them. See [the operations runbook](docs/OPERATIONS.md) for the production checklist, security controls, backup expectations, and incident guidance.
+
+The background processing queue deliberately has no OCR/LLM provider enabled yet. Uploads can be queued safely; provider selection and credentials will be added later without changing the teacher review flow.
 
 ## Project conventions
 

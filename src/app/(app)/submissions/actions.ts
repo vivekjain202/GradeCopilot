@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { requireAuthenticatedTeacher } from "@/lib/authorization";
 import { db } from "@/lib/db";
 import { createSubmissionUploadUrl } from "@/lib/storage";
+import { enqueueProcessingJob } from "@/lib/submissions/jobs";
 import { createEvaluationDraft } from "@/lib/evaluations/repository";
 import {
   completeSubmissionUploadSchema,
@@ -76,6 +77,7 @@ export async function completeSubmissionUpload(input: unknown) {
   const submission = await db.submission.create({
     data: { ...parsed.data, teacherId: teacher.id },
   });
+  await enqueueProcessingJob(submission.id);
 
   revalidatePath("/submissions");
   return { submissionId: submission.id };

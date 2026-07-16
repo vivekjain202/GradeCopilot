@@ -31,7 +31,7 @@ export async function teacherOwnsSubmissionContext(
 }
 
 export async function retrySubmission(teacherId: string, submissionId: string) {
-  return db.submission.updateMany({
+  const result = await db.submission.updateMany({
     where: {
       id: submissionId,
       teacherId,
@@ -42,4 +42,11 @@ export async function retrySubmission(teacherId: string, submissionId: string) {
       processingError: null,
     },
   });
+  if (result.count === 1) {
+    await db.processingJob.updateMany({
+      where: { submissionId },
+      data: { status: "QUEUED", errorCode: null },
+    });
+  }
+  return result;
 }

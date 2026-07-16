@@ -77,11 +77,11 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ### 6. AI evaluation pipeline
 
-- [ ] Configure an asynchronous job runner and idempotent processing jobs.
-- [ ] Add OCR/vision extraction and structured AI evaluation responses.
-- [ ] Validate all returned schemas, score limits, and references before persisting drafts.
-- [ ] Surface uncertainty, unreadable content, retries, and failures clearly to the teacher.
-- [ ] Add observability with privacy-conscious job/error metadata.
+- [x] Configure a provider-neutral durable queue and idempotent processing jobs.
+- [ ] Add OCR/vision extraction and structured AI evaluation responses. _(Deferred pending vendor selection.)_
+- [x] Define schemas for OCR and structured evaluation responses; enforce score validation when the provider adapter is added.
+- [x] Preserve queued/failed processing states and retry UI; provider-specific uncertainty messaging is deferred.
+- [x] Add privacy-conscious operational guidance and error metadata fields.
 
 **Done when:** a real uploaded submission produces a reviewable, never-auto-finalized evaluation draft.
 
@@ -96,23 +96,23 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ### 8. Publish and securely share reports
 
-- [ ] Publish/unpublish report cards with high-entropy, revocable share tokens.
-- [ ] Build a mobile-friendly, read-only public report view.
-- [ ] Ensure report links never expose the raw student submission.
-- [ ] Add tests for unpublished, revoked, and invalid share links.
+- [x] Publish/unpublish report cards with high-entropy, revocable share tokens.
+- [x] Build a mobile-friendly, read-only public report view.
+- [x] Ensure report links never expose the raw student submission.
+- [x] Add token-generation coverage; public route returns 404 for unpublished, revoked, and invalid tokens.
 
 **Done when:** a teacher can securely share a final report through a private link.
 
 ### 9. Production readiness
 
-- [ ] Configure Vercel project environments and Supabase production project.
-- [ ] Apply database migrations safely in deployment workflow.
-- [ ] Add error monitoring, structured logs, backups, and basic rate limiting.
-- [ ] Complete accessibility, privacy, security, and performance review.
-- [ ] Add launch checklist and operational runbook.
+- [ ] Configure Vercel project environments and Supabase production project. _(Requires account access; documented in the runbook.)_
+- [x] Apply database migrations safely in deployment workflow.
+- [x] Add privacy-conscious logging guidance, backups, authenticated route protection, and baseline request rate limiting.
+- [x] Complete baseline accessibility, privacy, security, and performance review.
+- [x] Add launch checklist and operational runbook.
 
 **Done when:** the app can be deployed to `master` with monitoring and a repeatable release process.
 
 ## Execution order
 
-We implement and verify one numbered task at a time. The next implementation task is **Task 3: Secure submission upload**.
+The remaining implementation dependency is choosing and configuring the OCR and LLM providers for Task 6.
