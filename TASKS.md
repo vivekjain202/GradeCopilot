@@ -87,10 +87,10 @@ This backlog follows a vertical-slice approach: establish a reliable foundation 
 
 ### 7. Report-card generation and teacher editor
 
-- [ ] Create report-card schema, versioning, and generation request.
-- [ ] Generate a structured report from finalized evaluation data only.
-- [ ] Build an editable report editor for summary, strengths, improvement areas, next steps, and teacher note.
-- [ ] Validate and snapshot the approved report version.
+- [x] Create report-card schema, versioning, and generation request.
+- [x] Generate a structured report from finalized evaluation data only.
+- [x] Build an editable report editor for summary, strengths, improvement areas, next steps, and teacher note.
+- [x] Validate and snapshot the approved report version.
 
 **Done when:** the teacher can create and revise a personalized report card from a finalized evaluation.
 
