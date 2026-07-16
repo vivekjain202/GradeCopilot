@@ -1,6 +1,11 @@
 import { z } from "zod";
 
 const rubricQuestionSchema = z.object({
+  questionNumber: z
+    .string()
+    .trim()
+    .min(1, "Add the number students should use.")
+    .max(50),
   label: z.string().trim().min(1, "Add a question label.").max(50),
   prompt: z.string().trim().min(1, "Add the question prompt.").max(5_000),
   expectedAnswer: z.string().trim().min(1, "Add an expected answer.").max(5_000),
@@ -25,6 +30,19 @@ export const testSchema = z
       .max(100),
   })
   .superRefine((value, context) => {
+    const duplicateNumbers = value.questions.some(
+      (question, index) =>
+        value.questions.findIndex(
+          (candidate) => candidate.questionNumber === question.questionNumber,
+        ) !== index,
+    );
+    if (duplicateNumbers) {
+      context.addIssue({
+        code: "custom",
+        path: ["questions"],
+        message: "Each rubric question needs a unique question number.",
+      });
+    }
     const rubricTotal = value.questions.reduce(
       (total, question) => total + question.maxMarks,
       0,
